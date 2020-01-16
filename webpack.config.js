@@ -4,11 +4,55 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const webpack = require('webpack');
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');
+const argv = require('yargs-parser')(process.argv.slice(2));
+const pro = argv.mode === 'production'; //  区别是生产环境和开发环境
+const plugins = [];
+if(pro){//线上环境
+    plugins.push(
+        new HtmlWebpackPlugin({
+            template: './src/index.html',
+            hash: true, // 会在打包好的bundle.js后面加上hash串
+        }),
+        // 拆分后会把css文件放到dist目录下的css/style.css
+        new ExtractTextWebpackPlugin('css/style.[chunkhash].css'),
+        new ExtractTextWebpackPlugin('css/reset.[chunkhash].css'),
+        new CleanWebpackPlugin(),
+    );
+}else{
+    //  开发环境
+    plugins.push(
+        new HtmlWebpackPlugin({
+            template: './src/index.html'
+        }),
+        // 拆分后会把css文件放到dist目录下的css/style.css
+        new ExtractTextWebpackPlugin('css/style.css'),
+        new ExtractTextWebpackPlugin('css/reset.css'),
+        new webpack.HotModuleReplacementPlugin(), // 热更新，热更新不是刷新
+    );
+}
+// [
+//     // 热更新，热更新不是刷新
+//     new webpack.HotModuleReplacementPlugin(),
+//     // 通过new一下这个类来使用插件
+//     new HtmlWebpackPlugin({
+//         // 用哪个html作为模板
+//         // 在src目录下创建一个index.html页面当做模板来用
+//         template: './src/index.html',
+//         hash: true, // 会在打包好的bundle.js后面加上hash串
+//     }),
+//     // 打包前先清空
+//     new CleanWebpackPlugin(),
+//     // 拆分后会把css文件放到dist目录下的css/style.css
+//     new ExtractTextWebpackPlugin('css/style.css'),
+//     new ExtractTextWebpackPlugin('css/reset.css'),
+// ],
 module.exports = {
     entry: './src/index.js',    // 入口文件
     output: {
-        filename: 'bundle.js',      // 打包后的文件名称
-        path: path.resolve('dist')  // 打包后的目录，必须是绝对路径
+        filename: pro ? '[name].[chunkhash].js' : '[name].js', // 打包后的文件名称
+        //filename: 'bundle.js',      // 打包后的文件名称
+        path: path.resolve('dist'),  // 打包后的目录，必须是绝对路径
+        publicPath: './',
     },// 出口文件
     resolve: {
         // 别名
@@ -75,22 +119,7 @@ module.exports = {
             }
         ]
     },              // 处理对应模块
-    plugins: [
-        // 热更新，热更新不是刷新
-        new webpack.HotModuleReplacementPlugin(),
-        // 通过new一下这个类来使用插件
-        new HtmlWebpackPlugin({
-            // 用哪个html作为模板
-            // 在src目录下创建一个index.html页面当做模板来用
-            template: './src/index.html',
-            hash: true, // 会在打包好的bundle.js后面加上hash串
-        }),
-        // 打包前先清空
-        new CleanWebpackPlugin(),
-        // 拆分后会把css文件放到dist目录下的css/style.css
-        new ExtractTextWebpackPlugin('css/style.css'),
-        new ExtractTextWebpackPlugin('css/reset.css'),
-    ],// 对应的插件
+    plugins: plugins,// 对应的插件
     //  提取公共代码
     optimization: {
         splitChunks: {
