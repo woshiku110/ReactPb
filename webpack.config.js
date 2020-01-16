@@ -52,12 +52,13 @@ module.exports = {
         filename: pro ? '[name].[chunkhash].js' : '[name].js', // 打包后的文件名称
         //filename: 'bundle.js',      // 打包后的文件名称
         path: path.resolve('dist'),  // 打包后的目录，必须是绝对路径
-        publicPath: './',
+        publicPath: pro ? './':'',
     },// 出口文件
     resolve: {
         // 别名
         alias: {
             pages: path.join(__dirname, 'src/pages'),
+            utils:path.join(__dirname,'src/utils')
             // component: path.join(__dirname, 'src/component'),
             // actions: path.join(__dirname, 'src/redux/actions'),
             // reducers: path.join(__dirname, 'src/redux/reducers'),

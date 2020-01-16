@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import {Home} from './pages/'
+import {Home} from './pages'
 import {sum} from './utils/utils'
 export default class App extends Component{
     render() {
